@@ -45,19 +45,23 @@ libname=$(mktemp -u "library").lib
 
 trap 'rm -f -- $libname' EXIT
 
-# --- sanitized AR/lib.exe call ---
-args=""
+# --- sanitized lib.exe call ---
+objs=""
 for arg in "$@"; do
     case "$arg" in
-        @printf) ;;  # skip bogus arg
-        *) args="$args \"$arg\"" ;;
+        *.o) objs="$objs $arg" ;;  # берем только объектные файлы
     esac
 done
 
-if [ -n "$AR" ]; then
-    eval $AR rcs "${libname}" $args >/dev/null
-else
-    eval lib.exe -out:"${libname}" $args >/dev/null
+if [ -z "$objs" ]; then
+    echo "No object files passed to makedef." >&2
+    exit 1
+fi
+
+lib.exe -nologo -out:"${libname}" $objs >/dev/null
+if [ $? -ne 0 ]; then
+    echo "Could not create temporary library." >&2
+    exit 1
 fi
 
 IFS='
