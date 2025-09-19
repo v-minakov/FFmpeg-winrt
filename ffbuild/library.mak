@@ -75,7 +75,7 @@ $(SUBDIR)$(SLIBNAME): $(SUBDIR)$(SLIBNAME_WITH_MAJOR)
 	$(Q)cd ./$(SUBDIR) && $(LN_S) $(SLIBNAME_WITH_MAJOR) $(SLIBNAME)
 
 $(SUBDIR)$(SLIBNAME_WITH_MAJOR): $(OBJS) $(SHLIBOBJS) $(SUBDIR)lib$(NAME).ver
-	$(SLIB_CREATE_DEF_CMD)
+	AR= EXTERN_PREFIX="$(EXTERN_PREFIX)" ./compat/windows/makedef $(SUBDIR)lib$(NAME).ver $(OBJS)
 ifeq ($(RESPONSE_FILES),yes)
 	$(Q)echo $$(filter %.o,$$^) > $$@.objs
 	$$(call LINK,$$(call $(NAME)LINK_SO_ARGS) $$(LD_O) @$$@.objs $$(call $(NAME)LINK_EXTRA))
