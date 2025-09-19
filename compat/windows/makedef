@@ -45,14 +45,29 @@ libname=$(mktemp -u "library").lib
 
 trap 'rm -f -- $libname' EXIT
 
+#if [ -n "$AR" ]; then
+#    $AR rcs ${libname} $@ >/dev/null
+#else
+#    lib.exe -out:${libname} $@ >/dev/null
+#fi
+#if [ $? != 0 ]; then
+#    echo "Could not create temporary library." >&2
+#    exit 1
+#fi
+
+# --- sanitized AR/lib.exe call ---
+args=""
+for arg in "$@"; do
+    case "$arg" in
+        @printf) ;;  # skip bogus arg
+        *) args="$args \"$arg\"" ;;
+    esac
+done
+
 if [ -n "$AR" ]; then
-    $AR rcs ${libname} $@ >/dev/null
+    eval $AR rcs "${libname}" $args >/dev/null
 else
-    lib.exe -out:${libname} $@ >/dev/null
-fi
-if [ $? != 0 ]; then
-    echo "Could not create temporary library." >&2
-    exit 1
+    eval lib.exe -out:"${libname}" $args >/dev/null
 fi
 
 IFS='
