@@ -134,5 +134,7 @@ for exp in ${regex}; do
           sed -e 's/^/    /')
 done
 
-echo "EXPORTS"
-echo "${list}" | sort | uniq | tail -n +2
+{
+  echo "EXPORTS"
+  echo "${list}" | sort | uniq | tail -n +2
+} > "${libname%.ver}.def"
